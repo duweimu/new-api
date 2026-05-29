@@ -105,24 +105,43 @@ export function Stats(_props: StatsProps) {
   ]
 
   return (
-    <div className='border-border/40 bg-muted/10 relative z-10 border-y'>
-      <div className='mx-auto max-w-6xl px-6 py-10 md:py-12'>
+    <div className='relative z-10 border-y-2 border-foreground bg-foreground text-background'>
+      <div
+        aria-hidden
+        className='absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--background)_1px,transparent_0)] bg-[size:18px_18px] opacity-10'
+      />
+      <div className='relative mx-auto max-w-6xl px-6 py-10 md:py-12'>
         <div className='grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12'>
-          {stats.map((s) => (
+          {stats.map((s, index) => (
             <div
               key={s.label}
-              className='flex flex-col items-center text-center'
+              className='relative flex flex-col items-center rounded-2xl border-2 border-background/80 bg-background px-4 py-5 text-center text-foreground shadow-[6px_6px_0_var(--muted-foreground)]'
             >
-              <span className='text-2xl font-bold tracking-tight md:text-3xl'>
+              <PawDot className='absolute -top-3 -right-2 rotate-12' />
+              <span className='text-3xl font-black tracking-tight md:text-4xl'>
                 <Counter end={s.end} suffix={s.suffix} decimals={s.decimals} />
               </span>
-              <span className='text-muted-foreground mt-1.5 text-xs'>
+              <span className='mt-2 text-xs font-bold text-foreground/60'>
                 {s.label}
+              </span>
+              <span className='absolute -bottom-2 left-4 font-mono text-[10px] font-black text-foreground/30'>
+                {String(index + 1).padStart(2, '0')}
               </span>
             </div>
           ))}
         </div>
       </div>
     </div>
+  )
+}
+
+function PawDot(props: { className?: string }) {
+  return (
+    <span
+      aria-hidden='true'
+      className={`flex size-9 items-center justify-center rounded-full border-2 border-foreground bg-background ${props.className ?? ''}`}
+    >
+      <span className='size-3 rounded-full bg-foreground' />
+    </span>
   )
 }
