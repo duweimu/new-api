@@ -20,17 +20,17 @@ For commercial licensing, please contact support@quantumnous.com
 import React from 'react';
 import {
   Banner,
-  Modal,
-  Typography,
-  Card,
   Button,
-  Select,
+  Card,
   Divider,
+  Modal,
+  Select,
   Tooltip,
+  Typography,
 } from '@douyinfe/semi-ui';
-import { Crown, CalendarClock, Package } from 'lucide-react';
-import { SiStripe } from 'react-icons/si';
 import { IconCreditCard } from '@douyinfe/semi-icons';
+import { CalendarClock, Crown, Package } from 'lucide-react';
+import { SiStripe } from 'react-icons/si';
 import { renderQuota } from '../../../helpers';
 import { getCurrencyConfig } from '../../../helpers/render';
 import {
@@ -39,6 +39,15 @@ import {
 } from '../../../helpers/subscriptionFormat';
 
 const { Text } = Typography;
+
+function formatLocalPayAmount(amount) {
+  const numericAmount = Number(amount);
+  if (!Number.isFinite(numericAmount)) {
+    return '-';
+  }
+  const { symbol } = getCurrencyConfig();
+  return `${symbol}${numericAmount.toFixed(2)}`;
+}
 
 const SubscriptionPurchaseModal = ({
   t,
@@ -52,6 +61,9 @@ const SubscriptionPurchaseModal = ({
   enableOnlineTopUp = false,
   enableStripeTopUp = false,
   enableCreemTopUp = false,
+  epayAmount = null,
+  epayAmountLoading = false,
+  epayAmountError = '',
   purchaseLimitInfo = null,
   onPayStripe,
   onPayCreem,
@@ -59,13 +71,7 @@ const SubscriptionPurchaseModal = ({
 }) => {
   const plan = selectedPlan?.plan;
   const totalAmount = Number(plan?.total_amount || 0);
-  const { symbol, rate } = getCurrencyConfig();
-  const price = plan ? Number(plan.price_amount || 0) : 0;
-  const convertedPrice = price * rate;
-  const displayPrice = convertedPrice.toFixed(
-    Number.isInteger(convertedPrice) ? 0 : 2,
-  );
-  // 只有当管理员开启支付网关 AND 套餐配置了对应的支付ID时才显示
+  const planPrice = plan ? Number(plan.price_amount || 0).toFixed(2) : '0.00';
   const hasStripe = enableStripeTopUp && !!plan?.stripe_price_id;
   const hasCreem = enableCreemTopUp && !!plan?.creem_product_id;
   const hasEpay = enableOnlineTopUp && epayMethods.length > 0;
@@ -74,13 +80,14 @@ const SubscriptionPurchaseModal = ({
   const purchaseCount = Number(purchaseLimitInfo?.count || 0);
   const purchaseLimitReached =
     purchaseLimit > 0 && purchaseCount >= purchaseLimit;
+  const payableAmount = formatLocalPayAmount(epayAmount);
 
   return (
     <Modal
       title={
         <div className='flex items-center'>
           <Crown className='mr-2' size={18} />
-          {t('购买订阅套餐')}
+          {t('\u8d2d\u4e70\u8ba2\u9605\u5957\u9910')}
         </div>
       }
       visible={visible}
@@ -91,12 +98,11 @@ const SubscriptionPurchaseModal = ({
     >
       {plan ? (
         <div className='space-y-4 pb-10'>
-          {/* 套餐信息 */}
           <Card className='!rounded-xl !border-0 bg-slate-50 dark:bg-slate-800'>
             <div className='space-y-3'>
-              <div className='flex justify-between items-center'>
+              <div className='flex items-center justify-between'>
                 <Text strong className='text-slate-700 dark:text-slate-200'>
-                  {t('套餐名称')}：
+                  {t('\u5957\u9910\u540d\u79f0')}:
                 </Text>
                 <Typography.Text
                   ellipsis={{ rows: 1, showTooltip: true }}
@@ -106,9 +112,10 @@ const SubscriptionPurchaseModal = ({
                   {plan.title}
                 </Typography.Text>
               </div>
-              <div className='flex justify-between items-center'>
+
+              <div className='flex items-center justify-between'>
                 <Text strong className='text-slate-700 dark:text-slate-200'>
-                  {t('有效期')}：
+                  {t('\u6709\u6548\u671f')}:
                 </Text>
                 <div className='flex items-center'>
                   <CalendarClock size={14} className='mr-1 text-slate-500' />
@@ -117,63 +124,83 @@ const SubscriptionPurchaseModal = ({
                   </Text>
                 </div>
               </div>
-              {formatSubscriptionResetPeriod(plan, t) !== t('不重置') && (
-                <div className='flex justify-between items-center'>
+
+              {formatSubscriptionResetPeriod(plan, t) !==
+                t('\u4e0d\u91cd\u7f6e') && (
+                <div className='flex items-center justify-between'>
                   <Text strong className='text-slate-700 dark:text-slate-200'>
-                    {t('重置周期')}：
+                    {t('\u91cd\u7f6e\u5468\u671f')}:
                   </Text>
                   <Text className='text-slate-900 dark:text-slate-100'>
                     {formatSubscriptionResetPeriod(plan, t)}
                   </Text>
                 </div>
               )}
-              <div className='flex justify-between items-center'>
+
+              <div className='flex items-center justify-between'>
                 <Text strong className='text-slate-700 dark:text-slate-200'>
-                  {t('总额度')}：
+                  {t('\u603b\u989d\u5ea6')}:
                 </Text>
                 <div className='flex items-center'>
                   <Package size={14} className='mr-1 text-slate-500' />
                   {totalAmount > 0 ? (
-                    <Tooltip content={`${t('原生额度')}：${totalAmount}`}>
+                    <Tooltip
+                      content={`${t('\u539f\u751f\u989d\u5ea6')}: ${totalAmount}`}
+                    >
                       <Text className='text-slate-900 dark:text-slate-100'>
                         {renderQuota(totalAmount)}
                       </Text>
                     </Tooltip>
                   ) : (
                     <Text className='text-slate-900 dark:text-slate-100'>
-                      {t('不限')}
+                      {t('\u4e0d\u9650')}
                     </Text>
                   )}
                 </div>
               </div>
+
               {plan?.upgrade_group ? (
-                <div className='flex justify-between items-center'>
+                <div className='flex items-center justify-between'>
                   <Text strong className='text-slate-700 dark:text-slate-200'>
-                    {t('升级分组')}：
+                    {t('\u5347\u7ea7\u5206\u7ec4')}:
                   </Text>
                   <Text className='text-slate-900 dark:text-slate-100'>
                     {plan.upgrade_group}
                   </Text>
                 </div>
               ) : null}
+
               <Divider margin={8} />
-              <div className='flex justify-between items-center'>
+
+              <div className='flex items-center justify-between'>
                 <Text strong className='text-slate-700 dark:text-slate-200'>
-                  {t('应付金额')}：
+                  {t('\u5957\u9910\u6807\u4ef7 (USD)')}:
                 </Text>
                 <Text strong className='text-xl text-purple-600'>
-                  {symbol}
-                  {displayPrice}
+                  ${planPrice}
                 </Text>
               </div>
+
+              {hasEpay && (
+                <div className='flex items-center justify-between'>
+                  <Text strong className='text-slate-700 dark:text-slate-200'>
+                    {t('\u5f85\u652f\u4ed8\u91d1\u989d')}:
+                  </Text>
+                  <Text
+                    strong
+                    className='text-base text-slate-900 dark:text-slate-100'
+                  >
+                    {epayAmountLoading ? '...' : payableAmount}
+                  </Text>
+                </div>
+              )}
             </div>
           </Card>
 
-          {/* 支付方式 */}
           {purchaseLimitReached && (
             <Banner
               type='warning'
-              description={`${t('已达到购买上限')} (${purchaseCount}/${purchaseLimit})`}
+              description={`${t('\u5df2\u8fbe\u5230\u8d2d\u4e70\u4e0a\u9650')} (${purchaseCount}/${purchaseLimit})`}
               className='!rounded-xl'
               closeIcon={null}
             />
@@ -182,10 +209,9 @@ const SubscriptionPurchaseModal = ({
           {hasAnyPayment ? (
             <div className='space-y-3'>
               <Text size='small' type='tertiary'>
-                {t('选择支付方式')}：
+                {t('\u9009\u62e9\u652f\u4ed8\u65b9\u5f0f')}:
               </Text>
 
-              {/* Stripe / Creem */}
               {(hasStripe || hasCreem) && (
                 <div className='flex gap-2'>
                   {hasStripe && (
@@ -215,37 +241,54 @@ const SubscriptionPurchaseModal = ({
                 </div>
               )}
 
-              {/* 易支付 */}
               {hasEpay && (
-                <div className='flex gap-2'>
-                  <Select
-                    value={selectedEpayMethod}
-                    onChange={setSelectedEpayMethod}
-                    style={{ flex: 1 }}
-                    size='default'
-                    placeholder={t('选择支付方式')}
-                    optionList={epayMethods.map((m) => ({
-                      value: m.type,
-                      label: m.name || m.type,
-                    }))}
-                    disabled={purchaseLimitReached}
-                  />
-                  <Button
-                    theme='solid'
-                    type='primary'
-                    onClick={onPayEpay}
-                    loading={paying}
-                    disabled={!selectedEpayMethod || purchaseLimitReached}
-                  >
-                    {t('支付')}
-                  </Button>
+                <div className='space-y-2'>
+                  {epayAmountError && (
+                    <Banner
+                      type='danger'
+                      description={epayAmountError}
+                      className='!rounded-xl'
+                      closeIcon={null}
+                    />
+                  )}
+                  <div className='flex gap-2'>
+                    <Select
+                      value={selectedEpayMethod}
+                      onChange={setSelectedEpayMethod}
+                      style={{ flex: 1 }}
+                      size='default'
+                      placeholder={t('\u9009\u62e9\u652f\u4ed8\u65b9\u5f0f')}
+                      optionList={epayMethods.map((m) => ({
+                        value: m.type,
+                        label: m.name || m.type,
+                      }))}
+                      disabled={purchaseLimitReached}
+                    />
+                    <Button
+                      theme='solid'
+                      type='primary'
+                      onClick={onPayEpay}
+                      loading={paying}
+                      disabled={
+                        !selectedEpayMethod ||
+                        purchaseLimitReached ||
+                        epayAmountLoading ||
+                        !!epayAmountError ||
+                        epayAmount === null
+                      }
+                    >
+                      {t('\u652f\u4ed8')}
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
           ) : (
             <Banner
               type='info'
-              description={t('管理员未开启在线支付功能，请联系管理员配置。')}
+              description={t(
+                '\u7ba1\u7406\u5458\u672a\u5f00\u542f\u5728\u7ebf\u652f\u4ed8\u529f\u80fd\uff0c\u8bf7\u8054\u7cfb\u7ba1\u7406\u5458\u914d\u7f6e\u3002',
+              )}
               className='!rounded-xl'
               closeIcon={null}
             />

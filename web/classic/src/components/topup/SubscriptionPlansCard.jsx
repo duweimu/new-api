@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Badge,
   Button,
@@ -89,6 +89,9 @@ const SubscriptionPlansCard = ({
   const [paying, setPaying] = useState(false);
   const [selectedEpayMethod, setSelectedEpayMethod] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [epayAmount, setEpayAmount] = useState(null);
+  const [epayAmountLoading, setEpayAmountLoading] = useState(false);
+  const [epayAmountError, setEpayAmountError] = useState('');
 
   const epayMethods = useMemo(() => getEpayMethods(payMethods), [payMethods]);
 
@@ -102,7 +105,63 @@ const SubscriptionPlansCard = ({
     setOpen(false);
     setSelectedPlan(null);
     setPaying(false);
+    setEpayAmount(null);
+    setEpayAmountLoading(false);
+    setEpayAmountError('');
   };
+
+  useEffect(() => {
+    let active = true;
+
+    if (
+      !open ||
+      !selectedPlan?.plan?.id ||
+      !enableOnlineTopUp ||
+      epayMethods.length === 0
+    ) {
+      setEpayAmount(null);
+      setEpayAmountLoading(false);
+      setEpayAmountError('');
+      return () => {
+        active = false;
+      };
+    }
+
+    setEpayAmount(null);
+    setEpayAmountLoading(true);
+    setEpayAmountError('');
+
+    API.post('/api/subscription/epay/amount', {
+      plan_id: selectedPlan.plan.id,
+    })
+      .then((res) => {
+        if (!active) return;
+        if (res.data?.message === 'success' && res.data?.data) {
+          const value = Number(res.data.data);
+          if (Number.isFinite(value) && value > 0) {
+            setEpayAmount(value);
+            return;
+          }
+        }
+        setEpayAmountError(
+          typeof res.data?.data === 'string'
+            ? res.data.data
+            : res.data?.message || t('\u652f\u4ed8\u8bf7\u6c42\u5931\u8d25'),
+        );
+      })
+      .catch(() => {
+        if (!active) return;
+        setEpayAmountError(t('\u652f\u4ed8\u8bf7\u6c42\u5931\u8d25'));
+      })
+      .finally(() => {
+        if (!active) return;
+        setEpayAmountLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [enableOnlineTopUp, epayMethods, open, selectedPlan, t]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -172,6 +231,10 @@ const SubscriptionPlansCard = ({
   const payEpay = async () => {
     if (!selectedEpayMethod) {
       showError(t('请选择支付方式'));
+      return;
+    }
+    if (epayAmountLoading || epayAmountError || epayAmount === null) {
+      showError(epayAmountError || t('\u652f\u4ed8\u8bf7\u6c42\u5931\u8d25'));
       return;
     }
     setPaying(true);
@@ -673,6 +736,9 @@ const SubscriptionPlansCard = ({
         enableOnlineTopUp={enableOnlineTopUp}
         enableStripeTopUp={enableStripeTopUp}
         enableCreemTopUp={enableCreemTopUp}
+        epayAmount={epayAmount}
+        epayAmountLoading={epayAmountLoading}
+        epayAmountError={epayAmountError}
         purchaseLimitInfo={
           selectedPlan?.plan?.id
             ? {

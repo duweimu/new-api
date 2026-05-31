@@ -3679,6 +3679,9 @@
     "并确认自行承担部署": "confirm that I bear legal responsibility arising from deployment",
     "运营和收费行为产生的法律责任": "operation and charging behavior",
     "，": ", ",
-    "、": ", "
+    "、": ", ",
+    "套餐标价 (USD)": "Prix du forfait (USD)",
+    "用于展示套餐标价；易支付会在结账时按“价格（本地货币 / USD）”换算待支付金额": "Affiche comme le prix catalogue de l'abonnement. Epay le convertit en montant a payer selon \"Prix (devise locale / USD)\" au moment du reglement.",
+    "待支付金额": "Montant a payer"
   }
 }

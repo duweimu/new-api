@@ -306,7 +306,7 @@ export function SubscriptionsMutateDrawer({
                   name='price_amount'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('Actual Amount')}</FormLabel>
+                      <FormLabel>{t('Plan Price (USD)')}</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -318,6 +318,11 @@ export function SubscriptionsMutateDrawer({
                           }
                         />
                       </FormControl>
+                      <FormDescription>
+                        {t(
+                          'Users see this as the subscription list price. Epay converts it to local currency at checkout.'
+                        )}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -673,9 +678,7 @@ export function SubscriptionsMutateDrawer({
                           disabled={items.length === 0}
                         >
                           <SelectTrigger className='w-full flex-1'>
-                            <SelectValue
-                              placeholder={t('Select a product')}
-                            />
+                            <SelectValue placeholder={t('Select a product')} />
                           </SelectTrigger>
                           <SelectContent>
                             {items.map((item) => (
@@ -689,7 +692,9 @@ export function SubscriptionsMutateDrawer({
                           type='button'
                           variant='outline'
                           onClick={handleCreatePancakeProduct}
-                          disabled={creatingPancakeProduct || !pancakeCreateReady}
+                          disabled={
+                            creatingPancakeProduct || !pancakeCreateReady
+                          }
                           className='shrink-0'
                         >
                           {creatingPancakeProduct

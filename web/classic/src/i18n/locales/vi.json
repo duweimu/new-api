@@ -4213,6 +4213,9 @@
     "并确认自行承担部署": "confirm that I bear legal responsibility arising from deployment",
     "运营和收费行为产生的法律责任": "operation and charging behavior",
     "，": ", ",
-    "、": ", "
+    "、": ", ",
+    "套餐标价 (USD)": "Giá gói (USD)",
+    "用于展示套餐标价；易支付会在结账时按“价格（本地货币 / USD）”换算待支付金额": "Hiển thị như giá niêm yết của gói đăng ký. Epay sẽ quy đổi thành số tiền cần thanh toán theo “Giá (tiền tệ địa phương / USD)” khi thanh toán.",
+    "待支付金额": "Số tiền cần thanh toán"
   }
 }

@@ -3648,6 +3648,9 @@
     "并确认自行承担部署": "confirm that I bear legal responsibility arising from deployment",
     "运营和收费行为产生的法律责任": "operation and charging behavior",
     "，": ", ",
-    "、": ", "
+    "、": ", ",
+    "套餐标价 (USD)": "プラン価格 (USD)",
+    "用于展示套餐标价；易支付会在结账时按“价格（本地货币 / USD）”换算待支付金额": "サブスクリプションの表示価格として使われます。Epay は決済時に「価格（現地通貨 / USD）」に従って支払い金額へ換算します。",
+    "待支付金额": "支払い金額"
   }
 }

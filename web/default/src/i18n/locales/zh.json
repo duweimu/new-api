@@ -4527,6 +4527,8 @@
     "Zero retention": "零数据保留",
     "Zhipu": "智谱",
     "Zhipu V4": "智谱 V4",
-    "Zoom": "缩放"
+    "Zoom": "缩放",
+    "Plan Price (USD)": "套餐标价 (USD)",
+    "Users see this as the subscription list price. Epay converts it to local currency at checkout.": "用户看到的是套餐标价；易支付会在结账时按本地货币换算实际支付金额。"
   }
 }

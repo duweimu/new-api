@@ -4527,6 +4527,8 @@
     "Zero retention": "Zero retention",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "Plan Price (USD)": "Plan Price (USD)",
+    "Users see this as the subscription list price. Epay converts it to local currency at checkout.": "Users see this as the subscription list price. Epay converts it to local currency at checkout."
   }
 }

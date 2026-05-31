@@ -25,6 +25,7 @@ import type {
   CreateUserSubscriptionRequest,
   SubscriptionPayResponse,
   SubscriptionPayRequest,
+  SubscriptionAmountResponse,
   SelfSubscriptionData,
 } from './types'
 
@@ -166,6 +167,13 @@ export async function paySubscriptionEpay(
     ...res.data,
     url: res.data.url || (res as unknown as { url?: string }).url,
   }
+}
+
+export async function paySubscriptionEpayAmount(
+  data: SubscriptionPayRequest
+): Promise<SubscriptionAmountResponse> {
+  const res = await api.post('/api/subscription/epay/amount', data)
+  return res.data
 }
 
 // ============================================================================
