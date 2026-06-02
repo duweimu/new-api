@@ -62,7 +62,7 @@ import type { PaymentMethod, TopupInfo } from '../types'
 interface SubscriptionPlansCardProps {
   topupInfo: TopupInfo | null
   onAvailabilityChange?: (available: boolean) => void
-  userQuota?: number
+  userQuota: number
   onPurchaseSuccess?: () => void | Promise<void>
 }
 

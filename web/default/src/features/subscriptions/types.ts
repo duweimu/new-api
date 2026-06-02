@@ -92,6 +92,8 @@ export interface SubscriptionPayRequest {
   payment_method?: string
 }
 
+export type SubscriptionAmountResponse = ApiResponse<string>
+
 export interface SubscriptionPayResponse {
   success: boolean
   message?: string

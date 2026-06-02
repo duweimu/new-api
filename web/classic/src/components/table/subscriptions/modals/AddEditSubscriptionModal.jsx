@@ -298,11 +298,19 @@ const AddEditSubscriptionModal = ({
                     <Col span={12}>
                       <Form.InputNumber
                         field='price_amount'
-                        label={t('实付金额')}
+                        label={t('\u5957\u9910\u6807\u4ef7 (USD)')}
                         required
                         min={0}
                         precision={2}
-                        rules={[{ required: true, message: t('请输入金额') }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: t('\u8bf7\u8f93\u5165\u91d1\u989d'),
+                          },
+                        ]}
+                        extraText={t(
+                          '\u7528\u4e8e\u5c55\u793a\u5957\u9910\u6807\u4ef7\uff1b\u6613\u652f\u4ed8\u4f1a\u5728\u7ed3\u8d26\u65f6\u6309\u201c\u4ef7\u683c\uff08\u672c\u5730\u8d27\u5e01 / USD\uff09\u201d\u6362\u7b97\u5f85\u652f\u4ed8\u91d1\u989d',
+                        )}
                         style={{ width: '100%' }}
                       />
                     </Col>

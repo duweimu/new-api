@@ -25,20 +25,20 @@ type TopUp struct {
 }
 
 const (
+	PaymentMethodBalance      = "balance"
 	PaymentMethodStripe       = "stripe"
 	PaymentMethodCreem        = "creem"
 	PaymentMethodWaffo        = "waffo"
 	PaymentMethodWaffoPancake = "waffo_pancake"
-	PaymentMethodBalance      = "balance"
 )
 
 const (
+	PaymentProviderBalance      = "balance"
 	PaymentProviderEpay         = "epay"
 	PaymentProviderStripe       = "stripe"
 	PaymentProviderCreem        = "creem"
 	PaymentProviderWaffo        = "waffo"
 	PaymentProviderWaffoPancake = "waffo_pancake"
-	PaymentProviderBalance      = "balance"
 )
 
 var (
