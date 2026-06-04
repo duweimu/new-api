@@ -268,6 +268,10 @@ func canManageTargetRole(myRole int, targetRole int) bool {
 	return myRole == common.RoleRootUser || myRole > targetRole
 }
 
+func isAdminManagingSelf(c *gin.Context, targetUserID int) bool {
+	return c.GetInt("role") == common.RoleAdminUser && c.GetInt("id") == targetUserID
+}
+
 func GetUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -280,7 +284,7 @@ func GetUser(c *gin.Context) {
 		return
 	}
 	myRole := c.GetInt("role")
-	if !canManageTargetRole(myRole, user.Role) {
+	if !canManageTargetRole(myRole, user.Role) && !isAdminManagingSelf(c, user.Id) {
 		common.ApiErrorI18n(c, i18n.MsgUserNoPermissionSameLevel)
 		return
 	}
@@ -571,11 +575,16 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 	myRole := c.GetInt("role")
-	if !canManageTargetRole(myRole, originUser.Role) {
+	selfAdmin := isAdminManagingSelf(c, originUser.Id)
+	if !canManageTargetRole(myRole, originUser.Role) && !selfAdmin {
 		common.ApiErrorI18n(c, i18n.MsgUserNoPermissionHigherLevel)
 		return
 	}
-	if !canManageTargetRole(myRole, updatedUser.Role) {
+	canAssignRequestedRole := canManageTargetRole(myRole, updatedUser.Role)
+	if selfAdmin && (updatedUser.Role == 0 || updatedUser.Role == originUser.Role) {
+		canAssignRequestedRole = true
+	}
+	if !canAssignRequestedRole {
 		common.ApiErrorI18n(c, i18n.MsgUserCannotCreateHigherLevel)
 		return
 	}
@@ -878,7 +887,8 @@ func ManageUser(c *gin.Context) {
 		return
 	}
 	myRole := c.GetInt("role")
-	if !canManageTargetRole(myRole, user.Role) {
+	selfAdminQuotaAction := req.Action == "add_quota" && isAdminManagingSelf(c, user.Id)
+	if !canManageTargetRole(myRole, user.Role) && !selfAdminQuotaAction {
 		common.ApiErrorI18n(c, i18n.MsgUserNoPermissionHigherLevel)
 		return
 	}
