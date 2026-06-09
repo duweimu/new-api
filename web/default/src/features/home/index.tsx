@@ -16,58 +16,44 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { useTranslation } from 'react-i18next'
+import { useEffect } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '@/stores/auth-store'
-import { Markdown } from '@/components/ui/markdown'
-import { PublicLayout } from '@/components/layout'
-import { Footer } from '@/components/layout/components/footer'
-import { CTA, Features, Hero, HowItWorks, Stats } from './components'
-import { useHomePageContent } from './hooks'
+import { CatPlaygroundVisual } from './components/cat-playground-visual'
+import { HomeLoginForm } from './components/home-login-form'
 
 export function Home() {
-  const { t } = useTranslation()
   const { auth } = useAuthStore()
-  const isAuthenticated = !!auth.user
-  const { content, isLoaded, isUrl } = useHomePageContent()
+  const navigate = useNavigate()
 
-  if (!isLoaded) {
-    return (
-      <PublicLayout showMainContainer={false}>
-        <main className='flex min-h-screen items-center justify-center'>
-          <div className='text-muted-foreground'>{t('Loading...')}</div>
-        </main>
-      </PublicLayout>
-    )
-  }
+  useEffect(() => {
+    if (auth.user) {
+      navigate({ to: '/dashboard', replace: true })
+    }
+  }, [auth.user, navigate])
 
-  if (content) {
-    return (
-      <PublicLayout showMainContainer={false}>
-        <main className='overflow-x-hidden'>
-          {isUrl ? (
-            <iframe
-              src={content}
-              className='h-screen w-full border-none'
-              title={t('Custom Home Page')}
-            />
-          ) : (
-            <div className='container mx-auto py-8'>
-              <Markdown className='custom-home-content'>{content}</Markdown>
-            </div>
-          )}
-        </main>
-      </PublicLayout>
-    )
+  if (auth.user) {
+    return <main className='min-h-screen bg-[#fbfaf6] dark:bg-[#101010]' />
   }
 
   return (
-    <PublicLayout showMainContainer={false}>
-      <Hero isAuthenticated={isAuthenticated} />
-      <Stats />
-      <Features />
-      <HowItWorks />
-      <CTA isAuthenticated={isAuthenticated} />
-      <Footer />
-    </PublicLayout>
+    <main className='min-h-screen overflow-hidden bg-[#fbfaf6] px-4 py-8 text-foreground md:px-6 md:py-10 dark:bg-[#101010]'>
+      <div
+        aria-hidden
+        className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--foreground)_1px,transparent_0)] bg-[size:22px_22px] opacity-[0.045]'
+      />
+
+      <div className='relative mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-10 lg:grid-cols-[minmax(0,1.2fr)_24rem] lg:gap-14'>
+        <section className='min-w-0'>
+          <CatPlaygroundVisual className='max-w-4xl' />
+        </section>
+
+        <section className='min-w-0'>
+          <div className='border-border bg-background/92 rounded-2xl border p-6 shadow-[0_18px_60px_-28px_rgba(0,0,0,0.35)] backdrop-blur'>
+            <HomeLoginForm />
+          </div>
+        </section>
+      </div>
+    </main>
   )
 }
